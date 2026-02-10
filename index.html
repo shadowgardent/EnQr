@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate QR Code</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Prompt', sans-serif;
+    }
+    
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #eef2f3, #d9e4f5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      outline: none;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+    
+    input[type="text"]:focus {
+      border-color: #6aa9ff;
+      box-shadow: 0 0 0 3px rgba(106, 169, 255, 0.15);
+    }
+    
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #6aa9ff;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    
+    button:hover {
+      background: #4f8de0;
+    }
+    
+    #qrcode {
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <h2>QR Code Generator</h2>
+    <input type="text" id="link" placeholder="ใส่ลิงก์ที่นี่">
+    <button onclick="generateQR()">สร้าง QR Code</button>
+    <div id="qrcode"></div>
+  </div>
+
+  <script>
+    function generateQR() {
+      const link = document.getElementById("link").value;
+      document.getElementById("qrcode").innerHTML = "";
+      
+      new QRCode(document.getElementById("qrcode"), {
+        text: link,
+        width: 200,
+        height: 200
+      });
+    }
+  </script>
+
+</body>
+</html>
