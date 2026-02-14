@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+}
+
 * {
   box-sizing: border-box;
   font-family: 'Prompt', sans-serif;
@@ -5,7 +9,8 @@
 
 body {
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.35), transparent 40%),
     radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.3), transparent 45%),
@@ -14,7 +19,9 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 body::before,
@@ -123,6 +130,18 @@ button:hover {
   box-shadow: none;
 }
 
+.top-text h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  line-height: 1.25;
+}
+
+.top-text p {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
 .modal {
   display: none;
   position: fixed;
@@ -143,6 +162,8 @@ button:hover {
   text-align: center;
   position: relative;
   animation: modalPopIn 0.28s ease;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
 }
 
 .modal-content h3 {
@@ -234,5 +255,57 @@ button:hover {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .left-brand {
+    font-size: 28px;
+    left: 14px;
+    top: 12px;
+  }
+
+  .top-text {
+    width: min(92vw, 560px);
+    margin-top: 56px;
+    padding: 8px 12px;
+  }
+
+  .top-text h1 {
+    font-size: 1.45rem;
+  }
+
+  .top-text p {
+    font-size: 0.95rem;
+  }
+
+  .container {
+    width: min(92vw, 420px);
+    margin-top: 24px;
+    padding: 24px 18px;
+  }
+
+  .modal-content {
+    max-width: 94vw;
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-brand {
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+
+  .top-text {
+    margin-top: 48px;
+  }
+
+  .top-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .top-text p {
+    font-size: 0.9rem;
   }
 }
