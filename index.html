@@ -1,102 +1,151 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generate QR Code</title>
+  <title>QR By ONEST</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap">
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Prompt', sans-serif;
-    }
-    
-    body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #eef2f3, #d9e4f5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .container {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-    
-    h2 {
-      margin-bottom: 20px;
-      font-weight: 500;
-      color: #333;
-    }
-    
-    input[type="text"] {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      outline: none;
-      font-size: 14px;
-      transition: 0.3s ease;
-    }
-    
-    input[type="text"]:focus {
-      border-color: #6aa9ff;
-      box-shadow: 0 0 0 3px rgba(106, 169, 255, 0.15);
-    }
-    
-    button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: #6aa9ff;
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-    
-    button:hover {
-      background: #4f8de0;
-    }
-    
-    #qrcode {
-      margin-top: 25px;
-      display: flex;
-      justify-content: center;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 
 </head>
 <body>
+  <div class="left-brand">ONEST</div>
+  <div class="top-text ">
+    <h1>สร้าง QR Code ง่ายๆ ในไม่กี่ขั้นตอน</h1>
+    <p>เพียงแค่ใส่ลิงก์ที่คุณต้องการ แล้วคลิก "สร้าง QR Code" คุณก็จะได้ QR Code ที่พร้อมใช้งานทันที!</p>
+  </div>
   <div class="container">
     <h2>QR Code Generator</h2>
     <input type="text" id="link" placeholder="ใส่ลิงก์ที่นี่">
     <button onclick="generateQR()">สร้าง QR Code</button>
-    <div id="qrcode"></div>
   </div>
 
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">x</button>
+      <h3>QR Code ของคุณ</h3>
+      <div id="qrcode"></div>
+      <div id="modalToast" class="modal-toast"></div>
+      <button id="downloadBtn" onclick="downloadQR()">บันทึก QR Code</button>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+
   <script>
+    let lastQrText = "";
+
     function generateQR() {
-      const link = document.getElementById("link").value;
+      const link = document.getElementById("link").value.trim();
+      if (!link) {
+        showToast("กรุณาใส่ข้อมูลก่อนสร้าง QR Code", "error");
+        return;
+      }
+
+      lastQrText = link;
       document.getElementById("qrcode").innerHTML = "";
       
       new QRCode(document.getElementById("qrcode"), {
         text: link,
-        width: 200,
-        height: 200
+        width: 240,
+        height: 240,
+        correctLevel: QRCode.CorrectLevel.H
       });
+
+      document.getElementById("qrModal").style.display = "flex";
     }
+
+    function downloadQR() {
+      if (!lastQrText) {
+        showToast("กรุณาสร้าง QR Code ก่อนบันทึก", "error");
+        return;
+      }
+
+      const temp = document.createElement("div");
+      temp.style.position = "fixed";
+      temp.style.left = "-9999px";
+      document.body.appendChild(temp);
+
+      new QRCode(temp, {
+        text: lastQrText,
+        width: 1000,
+        height: 1000,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const sourceCanvas = temp.querySelector("canvas");
+        const sourceImg = temp.querySelector("img");
+        const exportSize = 1200;
+        const qrSize = 1000;
+        const offset = (exportSize - qrSize) / 2;
+
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = exportSize;
+        outputCanvas.height = exportSize;
+        const ctx = outputCanvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, exportSize, exportSize);
+        ctx.imageSmoothingEnabled = false;
+
+        if (sourceCanvas) {
+          ctx.drawImage(sourceCanvas, offset, offset, qrSize, qrSize);
+        } else if (sourceImg) {
+          ctx.drawImage(sourceImg, offset, offset, qrSize, qrSize);
+        } else {
+          document.body.removeChild(temp);
+          showToast("ไม่พบ QR Code สำหรับบันทึก", "error");
+          return;
+        }
+
+        const link = document.createElement("a");
+        link.href = outputCanvas.toDataURL("image/png");
+        link.download = "qrcode.png";
+        link.click();
+        showModalToast("บันทึก QR Code สำเร็จ");
+
+        document.body.removeChild(temp);
+      }, 80);
+    }
+
+    function showModalToast(message) {
+      const modalToast = document.getElementById("modalToast");
+      modalToast.textContent = message;
+      modalToast.classList.add("show");
+
+      clearTimeout(showModalToast.timer);
+      showModalToast.timer = setTimeout(() => {
+        modalToast.classList.remove("show");
+      }, 1600);
+    }
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.remove("show", "success", "error");
+      toast.classList.add(type);
+
+      requestAnimationFrame(() => {
+        toast.classList.add("show");
+      });
+
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function closeModal() {
+      document.getElementById("qrModal").style.display = "none";
+    }
+
+    window.addEventListener("click", (event) => {
+      const modal = document.getElementById("qrModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
   </script>
 
 </body>
