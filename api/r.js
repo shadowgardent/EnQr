@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   const API =
-  "https://script.google.com/macros/s/AKfycbwnV5k-Wqmn8KxnrbFw10wzFm1y1PrIEad9t-W5o2ZDxGCzwZGSG2Sb0QKVgW96zi9cEQ/exec"
+  "https://script.google.com/macros/s/AKfycbyfnkXX-qFYA1rdT-K1J7-F99IJMLBvBs03Z50rp1wdLsBWo4-FUmexjV5OVxWdo4wQCQ/exec"
 
   const response = await fetch(API);
   const data = await response.json();
