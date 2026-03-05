@@ -65,52 +65,53 @@
 
       let lastQrText = "";
 
-      async function generateQR() {
-        const link = document.getElementById("link").value.trim();
-        const expire = document.getElementById("expire").value;
+async function generateQR(){
 
-        if (!link) {
-          showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR", "error");
-          return;
-        }
+  const link = document.getElementById("link").value.trim();
+  const expire = document.getElementById("expire").value;
 
-        try {
-          const res = await fetch(API_URL, {
-            method: "POST",
+  if(!link){
+    showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR","error");
+    return;
+  }
 
-            headers: {
-              "Content-Type": "application/json",
-            },
+  try{
 
-            body: JSON.stringify({
-              url: link,
-              expire: expire,
-            }),
-          });
+    const url =
+    API_URL +
+    "?url=" + encodeURIComponent(link) +
+    "&expire=" + expire;
 
-          const data = await res.json();
+    const res = await fetch(url);
 
-          if (!data.qr) {
-            showToast("ไม่สามารถสร้าง QR ได้", "error");
-            return;
-          }
+    const data = await res.json();
 
-          lastQrText = data.qr;
+    if(!data.qr){
+      showToast("ไม่สามารถสร้าง QR ได้","error");
+      return;
+    }
 
-          document.getElementById("qrcode").innerHTML = "";
+    lastQrText = data.qr;
 
-          new QRCode(document.getElementById("qrcode"), {
-            text: lastQrText,
-            width: 240,
-            height: 240,
-            correctLevel: QRCode.CorrectLevel.H,
-          });
+    document.getElementById("qrcode").innerHTML = "";
 
-          document.getElementById("qrModal").style.display = "flex";
-        } catch (err) {
-          showToast("เชื่อมต่อ API ไม่สำเร็จ", "error");
-        }
-      }
+    new QRCode(document.getElementById("qrcode"),{
+      text:lastQrText,
+      width:240,
+      height:240,
+      correctLevel:QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qrModal").style.display="flex";
+
+  }
+  catch(err){
+
+    showToast("เชื่อมต่อ API ไม่สำเร็จ","error");
+
+  }
+
+}
 
       function downloadQR() {
         if (!lastQrText) {
