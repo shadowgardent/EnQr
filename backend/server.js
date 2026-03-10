@@ -9,10 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 /* CORS CONFIG */
 app.use(cors({
-  origin: ["https://en-qr.vercel.app"],
+  origin: "*",
   methods: ["GET","POST","OPTIONS"],
   allowedHeaders: ["Content-Type"]
 }));
+
 
 app.options("*", cors());
 
