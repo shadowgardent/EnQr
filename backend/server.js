@@ -1,13 +1,15 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-const uri = "mongodb+srv://dogtemple:0840266176Ok@cluster0.nkbxzow.mongodb.net/qr_system";
+// ใช้ MongoDB จาก Environment Variable
+const uri = process.env.MONGO_URI;
 
 const client = new MongoClient(uri);
 
@@ -20,7 +22,7 @@ async function start() {
     db = client.db("qr_system");
     console.log("MongoDB connected");
   } catch (error) {
-    console.error(error);
+    console.error("MongoDB connection error:", error);
   }
 }
 
@@ -30,23 +32,31 @@ start();
 // API สร้าง QR
 app.post("/create", async (req, res) => {
 
-  const { url, days } = req.body;
+  try {
 
-  const id = Math.random().toString(36).substring(2,8);
+    const { url, days } = req.body;
 
-  const expire = new Date();
-  expire.setDate(expire.getDate() + Number(days));
+    const id = Math.random().toString(36).substring(2,8);
 
-  await db.collection("qr_links").insertOne({
-    _id: id,
-    url: url,
-    expireAt: expire,
-    createdAt: new Date()
-  });
+    const expire = new Date();
+    expire.setDate(expire.getDate() + Number(days));
 
-  res.json({
-    qrUrl: `http://localhost:3000/r/${id}`
-  });
+    await db.collection("qr_links").insertOne({
+      _id: id,
+      url: url,
+      expireAt: expire,
+      createdAt: new Date()
+    });
+
+    const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+    res.json({
+      qrUrl: `${baseUrl}/r/${id}`
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: "สร้าง QR ไม่สำเร็จ" });
+  }
 
 });
 
@@ -54,19 +64,25 @@ app.post("/create", async (req, res) => {
 // redirect
 app.get("/r/:id", async (req, res) => {
 
-  const data = await db.collection("qr_links").findOne({
-    _id: req.params.id
-  });
+  try {
 
-  if (!data) {
-    return res.send("QR ไม่ถูกต้อง");
+    const data = await db.collection("qr_links").findOne({
+      _id: req.params.id
+    });
+
+    if (!data) {
+      return res.send("QR ไม่ถูกต้อง");
+    }
+
+    if (new Date() > new Date(data.expireAt)) {
+      return res.send("QR Code หมดอายุแล้ว");
+    }
+
+    res.redirect(data.url);
+
+  } catch (err) {
+    res.status(500).send("Server error");
   }
-
-  if (new Date() > new Date(data.expireAt)) {
-    return res.send("QR Code หมดอายุแล้ว");
-  }
-
-  res.redirect(data.url);
 
 });
 
@@ -75,5 +91,5 @@ app.get("/r/:id", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Server running");
+  console.log("Server running on port " + PORT);
 });
