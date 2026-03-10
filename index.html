@@ -32,6 +32,7 @@
         <option value="3">หมดอายุใน 3 วัน</option>
         <option value="5">หมดอายุใน 5 วัน</option>
         <option value="7">หมดอายุใน 7 วัน</option>
+        <option value="0">ไม่หมดอายุ</option>
       </select>
 
       <button onclick="generateQR()">สร้าง QR Code</button>
@@ -56,48 +57,62 @@
 
       let lastQrText = "";
 
-      async function generateQR() {
+async function generateQR() {
 
-        const link = document.getElementById("link").value.trim();
-        const days = document.getElementById("expire").value;
+  const link = document.getElementById("link").value.trim();
+  const days = document.getElementById("expire").value;
 
-        if (!link) {
-          showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR Code", "error");
-          return;
-        }
+  if (!link) {
+    showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR Code", "error");
+    return;
+  }
 
-        try {
+  try {
 
-          const res = await fetch("https://enqr.onrender.com/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              url: link,
-              days: days
-            })
-          });
+    let qrUrl = "";
 
-          const data = await res.json();
+    //  ถ้าเลือกไม่หมดอายุ → ใช้ลิงก์ตรง
+    if (days === "0") {
 
-          lastQrText = data.qrUrl;
+      qrUrl = link;
 
-          document.getElementById("qrcode").innerHTML = "";
+    } else {
 
-          new QRCode(document.getElementById("qrcode"), {
-            text: data.qrUrl,
-            width: 240,
-            height: 240,
-            correctLevel: QRCode.CorrectLevel.H
-          });
+      // 
+      const res = await fetch("https://enqr.onrender.com/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          url: link,
+          days: days
+        })
+      });
 
-          document.getElementById("qrModal").style.display = "flex";
+      const data = await res.json();
+      qrUrl = data.qrUrl;
 
-        } catch (err) {
-          showToast("เชื่อมต่อ Server ไม่ได้", "error");
-        }
-      }
+    }
+
+    lastQrText = qrUrl;
+
+    document.getElementById("qrcode").innerHTML = "";
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: qrUrl,
+      width: 240,
+      height: 240,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qrModal").style.display = "flex";
+
+  } catch (err) {
+    showToast("เชื่อมต่อ Server ไม่ได้", "error");
+  }
+
+}
 
       function downloadQR() {
 
