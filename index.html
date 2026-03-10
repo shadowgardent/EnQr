@@ -11,76 +11,134 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <div class="left-brand">ONEST</div>
+
     <div class="top-text">
       <h1>สร้าง QR Code ง่ายๆ ในไม่กี่ขั้นตอน</h1>
       <p>
-        เพียงแค่ใส่ลิงก์ที่คุณต้องการ แล้วคลิก "สร้าง QR Code" คุณก็จะได้ QR
-        Code ที่พร้อมใช้งานทันที!
+        เพียงแค่ใส่ลิงก์ที่คุณต้องการ เลือกระยะเวลาหมดอายุ แล้วคลิก "สร้าง QR Code"
       </p>
     </div>
+
     <div class="container">
       <h2>QR Code Generator</h2>
+
       <input type="text" id="link" placeholder="ใส่ลิงก์ที่นี่" />
+
+      <select id="expire" style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;">
+        <option value="1">หมดอายุใน 1 วัน</option>
+        <option value="3">หมดอายุใน 3 วัน</option>
+        <option value="5">หมดอายุใน 5 วัน</option>
+        <option value="7">หมดอายุใน 7 วัน</option>
+      </select>
+
       <button onclick="generateQR()">สร้าง QR Code</button>
     </div>
+
     <div id="qrModal" class="modal">
       <div class="modal-content">
         <button class="close-btn" onclick="closeModal()">x</button>
         <h3>QR Code ของคุณ</h3>
+
         <div id="qrcode"></div>
+
         <div id="modalToast" class="modal-toast"></div>
+
         <button id="downloadBtn" onclick="downloadQR()">บันทึก QR Code</button>
       </div>
     </div>
+
     <div id="toast" class="toast"></div>
+
     <script>
+
       let lastQrText = "";
-      function generateQR() {
+
+      async function generateQR() {
+
         const link = document.getElementById("link").value.trim();
+        const days = document.getElementById("expire").value;
+
         if (!link) {
-          showToast("กรุณาใส่ข้อมูลก่อนสร้าง QR Code", "error");
+          showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR Code", "error");
           return;
         }
-        lastQrText = link;
-        document.getElementById("qrcode").innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), {
-          text: link,
-          width: 240,
-          height: 240,
-          correctLevel: QRCode.CorrectLevel.H,
-        });
-        document.getElementById("qrModal").style.display = "flex";
+
+        try {
+
+          const res = await fetch("http://localhost:3000/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              url: link,
+              days: days
+            })
+          });
+
+          const data = await res.json();
+
+          lastQrText = data.qrUrl;
+
+          document.getElementById("qrcode").innerHTML = "";
+
+          new QRCode(document.getElementById("qrcode"), {
+            text: data.qrUrl,
+            width: 240,
+            height: 240,
+            correctLevel: QRCode.CorrectLevel.H
+          });
+
+          document.getElementById("qrModal").style.display = "flex";
+
+        } catch (err) {
+          showToast("เชื่อมต่อ Server ไม่ได้", "error");
+        }
       }
+
       function downloadQR() {
+
         if (!lastQrText) {
           showToast("กรุณาสร้าง QR Code ก่อนบันทึก", "error");
           return;
         }
+
         const temp = document.createElement("div");
         temp.style.position = "fixed";
         temp.style.left = "-9999px";
+
         document.body.appendChild(temp);
+
         new QRCode(temp, {
           text: lastQrText,
           width: 1000,
           height: 1000,
           correctLevel: QRCode.CorrectLevel.H,
         });
+
         setTimeout(() => {
+
           const sourceCanvas = temp.querySelector("canvas");
           const sourceImg = temp.querySelector("img");
+
           const exportSize = 1200;
           const qrSize = 1000;
           const offset = (exportSize - qrSize) / 2;
+
           const outputCanvas = document.createElement("canvas");
           outputCanvas.width = exportSize;
           outputCanvas.height = exportSize;
+
           const ctx = outputCanvas.getContext("2d");
+
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, exportSize, exportSize);
+
           ctx.imageSmoothingEnabled = false;
+
           if (sourceCanvas) {
             ctx.drawImage(sourceCanvas, offset, offset, qrSize, qrSize);
           } else if (sourceImg) {
@@ -90,45 +148,68 @@
             showToast("ไม่พบ QR Code สำหรับบันทึก", "error");
             return;
           }
+
           const link = document.createElement("a");
+
           link.href = outputCanvas.toDataURL("image/png");
           link.download = "qrcode.png";
+
           link.click();
+
           showModalToast("บันทึก QR Code สำเร็จ");
+
           document.body.removeChild(temp);
+
         }, 80);
       }
+
       function showModalToast(message) {
         const modalToast = document.getElementById("modalToast");
         modalToast.textContent = message;
         modalToast.classList.add("show");
+
         clearTimeout(showModalToast.timer);
+
         showModalToast.timer = setTimeout(() => {
           modalToast.classList.remove("show");
         }, 1600);
       }
+
       function showToast(message, type = "success") {
+
         const toast = document.getElementById("toast");
+
         toast.textContent = message;
+
         toast.classList.remove("show", "success", "error");
+
         toast.classList.add(type);
+
         requestAnimationFrame(() => {
           toast.classList.add("show");
         });
+
         clearTimeout(showToast.timer);
+
         showToast.timer = setTimeout(() => {
           toast.classList.remove("show");
         }, 2200);
       }
+
       function closeModal() {
         document.getElementById("qrModal").style.display = "none";
       }
+
       window.addEventListener("click", (event) => {
+
         const modal = document.getElementById("qrModal");
+
         if (event.target === modal) {
           closeModal();
         }
+
       });
+
     </script>
   </body>
 </html>
