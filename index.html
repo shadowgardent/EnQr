@@ -1,13 +1,13 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="th">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR By ONEST</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -16,215 +16,424 @@
     <div class="left-brand">ONEST</div>
 
     <div class="top-text">
-      <h1>สร้าง QR Code ง่ายๆ ในไม่กี่ขั้นตอน</h1>
-      <p>
-        เพียงแค่ใส่ลิงก์ที่คุณต้องการ เลือกระยะเวลาหมดอายุ แล้วคลิก "สร้าง QR Code"
-      </p>
+      <h1>สร้าง QR Code ระดับมืออาชีพ</h1>
+      <p>ปรับแต่งดีไซน์ตามสไตล์คุณ พร้อมระบบจัดการวันหมดอายุ</p>
     </div>
 
     <div class="container">
-      <h2>QR Code Generator</h2>
+      <div class="generator-main">
+        
+        <!-- คอลัมน์ที่ 1: ข้อมูลและสีสัน -->
+        <div class="settings-column">
+          <div class="column-title">ข้อมูลและสีหลัก</div>
+          
+          <div class="input-group">
+            <div class="input-item">
+              <label>ลิงก์ปลายทาง (URL)</label>
+              <input type="text" id="link" placeholder="เช่น https://onest.me" oninput="updatePreview()" />
+            </div>
+            <div class="input-item">
+              <label>ระยะเวลาหมดอายุ</label>
+              <select id="expire" class="custom-select" onchange="updatePreview()">
+                <option value="1">หมดอายุใน 1 วัน</option>
+                <option value="3">หมดอายุใน 3 วัน</option>
+                <option value="5">หมดอายุใน 5 วัน</option>
+                <option value="7">หมดอายุใน 7 วัน</option>
+                <option value="0">ไม่หมดอายุ (ลิงก์ตรง)</option>
+              </select>
+            </div>
+            
+            <div class="input-item">
+              <label>สี QR Code</label>
+              <div class="color-options" id="colorSwatches">
+                <div class="color-swatch active" style="background-color: #000000;" onclick="selectColor('#000000', this)"></div>
+                <div class="color-swatch" style="background-color: #2563eb;" onclick="selectColor('#2563eb', this)"></div>
+                <div class="color-swatch" style="background-color: #dc2626;" onclick="selectColor('#dc2626', this)"></div>
+                <div class="color-swatch" style="background-color: #059669;" onclick="selectColor('#059669', this)"></div>
+                <div class="color-swatch" style="background-color: #7c3aed;" onclick="selectColor('#7c3aed', this)"></div>
+                <div class="color-swatch" style="background-color: #ea580c;" onclick="selectColor('#ea580c', this)"></div>
+                <div class="color-swatch" style="background-color: #db2777;" onclick="selectColor('#db2777', this)"></div>
+                <div class="color-swatch" style="background-color: #14b8a6;" onclick="selectColor('#14b8a6', this)"></div>
+                <div class="color-swatch" style="background-color: #f59e0b;" onclick="selectColor('#f59e0b', this)"></div>
+                <div class="color-swatch" style="background-color: #6366f1;" onclick="selectColor('#6366f1', this)"></div>
+                <div class="color-swatch" style="background-color: #475569;" onclick="selectColor('#475569', this)"></div>
+                <div class="custom-color-btn">
+                  +
+                  <input type="color" id="qrColor" value="#000000" onchange="selectColor(this.value, this.parentElement)" />
+                </div>
+              </div>
+            </div>
 
-      <input type="text" id="link" placeholder="ใส่ลิงก์ที่นี่" />
+            <div class="gradient-box">
+              <label class="checkbox-label">
+                <input type="checkbox" id="useGradient" onchange="toggleGradientUI(); updatePreview();" />
+                <span>ใช้สีไล่เฉด (Gradient)</span>
+              </label>
+              <div id="gradientOptions" style="display: none; margin-top: 12px; flex-direction: column; gap: 10px;">
+                <div class="input-item">
+                  <label style="font-size: 12px; color: #64748b;">รูปแบบการไล่สี</label>
+                  <select id="gradientType" class="custom-select-small" onchange="updatePreview()">
+                    <option value="linear">แนวนอน (Linear)</option>
+                    <option value="radial">วงกลม (Radial)</option>
+                  </select>
+                </div>
+                <label style="font-size: 12px; color: #64748b;">สีที่สอง</label>
+                <div class="color-options" id="colorSwatches2">
+                  <div class="color-swatch" style="background-color: #4fc3f7;" onclick="selectColor2('#4fc3f7', this)"></div>
+                  <div class="color-swatch" style="background-color: #9c27b0;" onclick="selectColor2('#9c27b0', this)"></div>
+                  <div class="color-swatch" style="background-color: #f44336;" onclick="selectColor2('#f44336', this)"></div>
+                  <div class="color-swatch" style="background-color: #4caf50;" onclick="selectColor2('#4caf50', this)"></div>
+                  <div class="color-swatch" style="background-color: #ff9800;" onclick="selectColor2('#ff9800', this)"></div>
+                  <div class="custom-color-btn">
+                    +
+                    <input type="color" id="qrColor2" value="#4fc3f7" onchange="selectColor2(this.value, this.parentElement)" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <select id="expire" style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;">
-        <option value="1">หมดอายุใน 1 วัน</option>
-        <option value="3">หมดอายุใน 3 วัน</option>
-        <option value="5">หมดอายุใน 5 วัน</option>
-        <option value="7">หมดอายุใน 7 วัน</option>
-        <option value="0">ไม่หมดอายุ</option>
-      </select>
+        <!-- คอลัมน์ที่ 2: แบรนดิ้งและรูปทรง -->
+        <div class="settings-column">
+          <div class="column-title">ตกแต่งและรูปทรง</div>
+          
+          <div class="input-group">
+            <div class="input-item">
+              <label>โลโก้ตรงกลาง</label>
+              <input type="file" id="logo" accept="image/*" onchange="updatePreview()" />
+            </div>
+            <div class="input-item">
+              <label>ข้อความใต้ QR Code</label>
+              <input type="text" id="qrText" placeholder="เช่น สแกนเลย!" oninput="updatePreview()" />
+            </div>
+            <div class="input-item">
+              <label>รูปแบบจุด (Dots)</label>
+              <select id="dotStyle" class="custom-select-small" onchange="updatePreview()">
+                <option value="rounded">โค้งมน (Rounded)</option>
+                <option value="square">สี่เหลี่ยม (Square)</option>
+                <option value="dots">จุดไข่ปลา (Dots)</option>
+                <option value="classy">หรูหรา (Classy)</option>
+                <option value="classy-rounded">หรูหราโค้งมน</option>
+                <option value="extra-rounded">โค้งมนพิเศษ</option>
+              </select>
+            </div>
+            <div class="option-row">
+              <div class="input-item flex-1">
+                <label>กรอบมุม</label>
+                <select id="cornerSquareStyle" class="custom-select-small" onchange="updatePreview()">
+                  <option value="extra-rounded">โค้งมน</option>
+                  <option value="square">สี่เหลี่ยม</option>
+                  <option value="dot">วงกลม</option>
+                </select>
+              </div>
+              <div class="input-item flex-1">
+                <label>จุดในมุม</label>
+                <select id="cornerDotStyle" class="custom-select-small" onchange="updatePreview()">
+                  <option value="dot">วงกลม</option>
+                  <option value="square">สี่เหลี่ยม</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <button onclick="generateQR()">สร้าง QR Code</button>
+        <!-- คอลัมน์ที่ 3: พรีวิวและดาวน์โหลด -->
+        <div class="preview-column">
+          <div class="column-title">ผลลัพธ์พรีวิว</div>
+          <div class="preview-container">
+            <div id="qrcode-preview"></div>
+          </div>
+          <button class="generate-btn" onclick="generateQR()">สร้างและดาวน์โหลด</button>
+        </div>
+
+      </div>
     </div>
 
+    <!-- Modal -->
     <div id="qrModal" class="modal">
       <div class="modal-content">
-        <button class="close-btn" onclick="closeModal()">x</button>
-        <h3>QR Code ของคุณ</h3>
-
-        <div id="qrcode"></div>
-
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <h3>พร้อมใช้งานแล้ว!</h3>
+        <div class="preview-container" style="margin-top: 20px; background: #fff; border: 1px solid #eee;">
+          <div id="qrcode-final"></div>
+        </div>
         <div id="modalToast" class="modal-toast"></div>
-
-        <button id="downloadBtn" onclick="downloadQR()">บันทึก QR Code</button>
+        <div class="download-options">
+          <button id="downloadPng" onclick="downloadQR('png')">บันทึก PNG</button>
+          <button id="downloadSvg" onclick="downloadQR('svg')">บันทึก SVG</button>
+        </div>
       </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
+      let qrCodePreview;
+      let qrCodeFinal;
+      let logoData = "";
+      let selectedColor = "#000000";
+      let selectedColor2 = "#4fc3f7";
 
-      let lastQrText = "";
+      window.onload = () => {
+        renderQR("qrcode-preview", "https://onest.me", "#000000", "");
+      };
 
-async function generateQR() {
+      function toggleGradientUI() {
+        const useGradient = document.getElementById("useGradient").checked;
+        document.getElementById("gradientOptions").style.display = useGradient ? "flex" : "none";
+      }
 
-  const link = document.getElementById("link").value.trim();
-  const days = document.getElementById("expire").value;
+      function selectColor(color, element) {
+        selectedColor = color;
+        document.querySelectorAll('#colorSwatches .color-swatch, #colorSwatches .custom-color-btn').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        if (element.classList.contains('custom-color-btn')) {
+            element.style.borderColor = color;
+            element.style.color = color;
+        }
+        updatePreview();
+      }
 
-  if (!link) {
-    showToast("กรุณาใส่ลิงก์ก่อนสร้าง QR Code", "error");
-    return;
-  }
+      function selectColor2(color, element) {
+        selectedColor2 = color;
+        document.querySelectorAll('#colorSwatches2 .color-swatch, #colorSwatches2 .custom-color-btn').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        if (element.classList.contains('custom-color-btn')) {
+            element.style.borderColor = color;
+            element.style.color = color;
+        }
+        updatePreview();
+      }
 
-  try {
+      async function updatePreview() {
+        try {
+          const linkElem = document.getElementById("link");
+          const logoElem = document.getElementById("logo");
+          const qrTextElem = document.getElementById("qrText");
+          const dotStyleElem = document.getElementById("dotStyle");
+          const cornerSquareStyleElem = document.getElementById("cornerSquareStyle");
+          const cornerDotStyleElem = document.getElementById("cornerDotStyle");
+          const useGradientElem = document.getElementById("useGradient");
+          const gradientTypeElem = document.getElementById("gradientType");
 
-    let qrUrl = "";
+          const link = linkElem ? linkElem.value.trim() || "https://onest.me" : "https://onest.me";
+          const logoFile = logoElem ? logoElem.files[0] : null;
+          const qrText = qrTextElem ? qrTextElem.value.trim() : "";
+          const dotStyle = dotStyleElem ? dotStyleElem.value : "rounded";
+          const cornerSquareStyle = cornerSquareStyleElem ? cornerSquareStyleElem.value : "extra-rounded";
+          const cornerDotStyle = cornerDotStyleElem ? cornerDotStyleElem.value : "dot";
+          const useGradient = useGradientElem ? useGradientElem.checked : false;
+          const gradientType = gradientTypeElem ? gradientTypeElem.value : "linear";
 
-    //  ถ้าเลือกไม่หมดอายุ → ใช้ลิงก์ตรง
-    if (days === "0") {
+          if (logoFile) {
+            logoData = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target.result);
+              reader.readAsDataURL(logoFile);
+            });
+          } else if (logoElem) {
+            logoData = "";
+          }
 
-      qrUrl = link;
+          renderQR("qrcode-preview", link, selectedColor, logoData, {
+              dotStyle, cornerSquareStyle, cornerDotStyle, text: qrText, useGradient, color2: selectedColor2, gradientType
+          });
+        } catch (err) {
+          console.error("Preview error:", err);
+        }
+      }
 
-    } else {
+      function renderQR(containerId, data, color, logo, styles = {}) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        const qrWrapper = document.createElement("div");
+        qrWrapper.style.display = "flex";
+        qrWrapper.style.flexDirection = "column";
+        qrWrapper.style.alignItems = "center";
+        const qrContainer = document.createElement("div");
+        qrWrapper.appendChild(qrContainer);
 
-      // 
-      const res = await fetch("https://enqr.onrender.com/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          url: link,
-          days: days
-        })
-      });
+        if (styles.text) {
+          const textElem = document.createElement("div");
+          textElem.className = "qr-caption";
+          textElem.textContent = styles.text;
+          textElem.style.color = "#333333";
+          qrWrapper.appendChild(textElem);
+        }
 
-      const data = await res.json();
-      qrUrl = data.qrUrl;
+        let dotsOptions = { color: color, type: styles.dotStyle || "rounded" };
+        if (styles.useGradient) {
+          dotsOptions.gradient = {
+            type: styles.gradientType || "linear",
+            rotation: 0,
+            colorStops: [{ offset: 0, color: color }, { offset: 1, color: styles.color2 || color }]
+          };
+        }
 
-    }
+        const qr = new QRCodeStyling({
+          width: containerId === "qrcode-preview" ? 250 : 350,
+          height: containerId === "qrcode-preview" ? 250 : 350,
+          type: "canvas",
+          data: data,
+          image: logo,
+          dotsOptions: dotsOptions,
+          backgroundOptions: { color: "#ffffff" },
+          cornersSquareOptions: { color: color, type: styles.cornerSquareStyle || "extra-rounded" },
+          cornersDotOptions: { color: color, type: styles.cornerDotStyle || "dot" },
+          imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.4 },
+          qrOptions: { errorCorrectionLevel: "H" }
+        });
+        qr.append(qrContainer);
+        container.appendChild(qrWrapper);
+        if (containerId === "qrcode-preview") qrCodePreview = qr;
+        else qrCodeFinal = qr;
+      }
 
-    lastQrText = qrUrl;
+      async function generateQR() {
+        const linkElem = document.getElementById("link");
+        const expireElem = document.getElementById("expire");
+        const qrTextElem = document.getElementById("qrText");
+        const dotStyleElem = document.getElementById("dotStyle");
+        const cornerSquareStyleElem = document.getElementById("cornerSquareStyle");
+        const cornerDotStyleElem = document.getElementById("cornerDotStyle");
+        const useGradientElem = document.getElementById("useGradient");
+        const gradientTypeElem = document.getElementById("gradientType");
 
-    document.getElementById("qrcode").innerHTML = "";
+        const link = linkElem ? linkElem.value.trim() : "";
+        const days = expireElem ? expireElem.value : "1";
+        const qrText = qrTextElem ? qrTextElem.value.trim() : "";
+        const dotStyle = dotStyleElem ? dotStyleElem.value : "rounded";
+        const cornerSquareStyle = cornerSquareStyleElem ? cornerSquareStyleElem.value : "extra-rounded";
+        const cornerDotStyle = cornerDotStyleElem ? cornerDotStyleElem.value : "dot";
+        const useGradient = useGradientElem ? useGradientElem.checked : false;
+        const gradientType = gradientTypeElem ? gradientTypeElem.value : "linear";
 
-    new QRCode(document.getElementById("qrcode"), {
-      text: qrUrl,
-      width: 240,
-      height: 240,
-      correctLevel: QRCode.CorrectLevel.H
-    });
-
-    document.getElementById("qrModal").style.display = "flex";
-
-  } catch (err) {
-    showToast("เชื่อมต่อ Server ไม่ได้", "error");
-  }
-
-}
-
-      function downloadQR() {
-
-        if (!lastQrText) {
-          showToast("กรุณาสร้าง QR Code ก่อนบันทึก", "error");
+        if (!link) {
+          showToast("กรุณาใส่ลิงก์ก่อนสร้าง", "error");
           return;
         }
 
-        const temp = document.createElement("div");
-        temp.style.position = "fixed";
-        temp.style.left = "-9999px";
-
-        document.body.appendChild(temp);
-
-        new QRCode(temp, {
-          text: lastQrText,
-          width: 1000,
-          height: 1000,
-          correctLevel: QRCode.CorrectLevel.H,
-        });
-
-        setTimeout(() => {
-
-          const sourceCanvas = temp.querySelector("canvas");
-          const sourceImg = temp.querySelector("img");
-
-          const exportSize = 1200;
-          const qrSize = 1000;
-          const offset = (exportSize - qrSize) / 2;
-
-          const outputCanvas = document.createElement("canvas");
-          outputCanvas.width = exportSize;
-          outputCanvas.height = exportSize;
-
-          const ctx = outputCanvas.getContext("2d");
-
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, exportSize, exportSize);
-
-          ctx.imageSmoothingEnabled = false;
-
-          if (sourceCanvas) {
-            ctx.drawImage(sourceCanvas, offset, offset, qrSize, qrSize);
-          } else if (sourceImg) {
-            ctx.drawImage(sourceImg, offset, offset, qrSize, qrSize);
-          } else {
-            document.body.removeChild(temp);
-            showToast("ไม่พบ QR Code สำหรับบันทึก", "error");
-            return;
+        try {
+          showToast("กำลังสร้างลิงก์...", "success");
+          let finalUrl = link;
+          if (days !== "0") {
+            // ชี้ไปที่ Render โดยตรงเพื่อให้แสกนผ่านมือถือได้ทุกที่
+            const apiBase = "https://enqr.onrender.com";
+            const res = await fetch(`${apiBase}/create`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: link, days: days })
+            });
+            if (!res.ok) {
+              const errorData = await res.json();
+              throw new Error(errorData.error || "Server error");
+            }
+            const data = await res.json();
+            finalUrl = data.qrUrl;
           }
+          renderQR("qrcode-final", finalUrl, selectedColor, logoData, {
+            dotStyle, cornerSquareStyle, cornerDotStyle, text: qrText, useGradient, color2: selectedColor2, gradientType
+          });
+          document.getElementById("qrModal").style.display = "flex";
+        } catch (err) {
+          console.error("Error generating QR:", err);
+          showToast("เกิดข้อผิดพลาด: " + err.message, "error");
+        }
+      }
+
+      async function downloadQR(extension) {
+        if (!qrCodeFinal) return;
+        const qrText = document.getElementById("qrText") ? document.getElementById("qrText").value.trim() : "";
+        
+        if (!qrText || extension === "svg") {
+          qrCodeFinal.download({ name: "qrcode", extension: extension });
+          showModalToast("กำลังบันทึก...");
+          return;
+        }
+
+        showModalToast("กำลังประมวลผลไฟล์ภาพ...");
+        
+        try {
+          const blob = await qrCodeFinal.getRawData("png");
+          const qrCanvas = await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas);
+            };
+            img.src = URL.createObjectURL(blob);
+          });
+
+          const finalCanvas = document.createElement("canvas");
+          const ctx = finalCanvas.getContext("2d");
+          
+          // ตั้งค่า Font เพื่อคำนวณขนาด
+          const fontSize = Math.floor(qrCanvas.width / 12); // ปรับขนาดฟอนต์ตามขนาด QR
+          ctx.font = `bold ${fontSize}px Prompt, sans-serif`;
+          
+          const textMetrics = ctx.measureText(qrText);
+          const textWidth = textMetrics.width;
+          
+          // คำนวณระยะห่าง
+          const padding = fontSize; 
+          const topMargin = fontSize * 1.2; // เพิ่มระยะห่างด้านบน
+          const bottomMargin = fontSize * 1.5;
+          
+          // กำหนดความกว้าง: ถ้าข้อความยาวกว่า QR ให้ขยายแคนวาส
+          const canvasWidth = Math.max(qrCanvas.width, textWidth + (padding * 2));
+          const canvasHeight = qrCanvas.height + topMargin + bottomMargin + fontSize;
+
+          finalCanvas.width = canvasWidth;
+          finalCanvas.height = canvasHeight;
+
+          // พื้นหลังสีขาว
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+          // วาง QR ตรงกลาง (ขยับลงมาจากด้านบนตาม topMargin)
+          const qrX = (canvasWidth - qrCanvas.width) / 2;
+          ctx.drawImage(qrCanvas, qrX, topMargin);
+
+          // วางข้อความตรงกลาง (ขยับตำแหน่ง Y ตามตำแหน่ง QR ใหม่)
+          ctx.fillStyle = "#333333";
+          ctx.font = `bold ${fontSize}px Prompt, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(qrText, canvasWidth / 2, qrCanvas.height + topMargin + (padding / 2));
 
           const link = document.createElement("a");
-
-          link.href = outputCanvas.toDataURL("image/png");
-          link.download = "qrcode.png";
-
+          link.href = finalCanvas.toDataURL("image/png");
+          link.download = "qrcode-with-text.png";
           link.click();
-
-          showModalToast("บันทึก QR Code สำเร็จ");
-
-          document.body.removeChild(temp);
-
-        }, 80);
+        } catch (err) {
+          console.error("Download error:", err);
+          showToast("ไม่สามารถบันทึกรูปภาพได้", "error");
+        }
       }
 
       function showModalToast(message) {
         const modalToast = document.getElementById("modalToast");
-        modalToast.textContent = message;
-        modalToast.classList.add("show");
-
-        clearTimeout(showModalToast.timer);
-
-        showModalToast.timer = setTimeout(() => {
-          modalToast.classList.remove("show");
-        }, 1600);
+        if (modalToast) {
+          modalToast.textContent = message;
+          modalToast.classList.add("show");
+          setTimeout(() => modalToast.classList.remove("show"), 1600);
+        }
       }
 
       function showToast(message, type = "success") {
-
         const toast = document.getElementById("toast");
-
         toast.textContent = message;
-
-        toast.classList.remove("show", "success", "error");
-
-        toast.classList.add(type);
-
-        requestAnimationFrame(() => {
-          toast.classList.add("show");
-        });
-
-        clearTimeout(showToast.timer);
-
-        showToast.timer = setTimeout(() => {
-          toast.classList.remove("show");
-        }, 2200);
+        toast.className = `toast ${type} show`;
+        setTimeout(() => toast.classList.remove("show"), 2200);
       }
 
-      function closeModal() {
-        document.getElementById("qrModal").style.display = "none";
-      }
-
-      window.addEventListener("click", (event) => {
-
-        const modal = document.getElementById("qrModal");
-
-        if (event.target === modal) {
-          closeModal();
-        }
-
-      });//test commit
-
+      function closeModal() { document.getElementById("qrModal").style.display = "none"; }
+      window.onclick = (e) => { if (e.target === document.getElementById("qrModal")) closeModal(); };
     </script>
   </body>
 </html>
